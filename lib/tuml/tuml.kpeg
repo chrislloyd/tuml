@@ -1,0 +1,145 @@
+%% name = Tuml::Parser
+%% {
+  def initialize *args
+    setup_parser *args
+    @stack = []
+  end
+
+  def close_block collection, name
+    collection << [:block, :close, name]
+  end
+
+  def ast
+    @ast ||= begin
+      stack = [[:multi]]
+
+      # Close any open tags
+      @stack.reverse.each {|ctx| close_block @tokens, ctx}
+
+      # Constructs a sequence of nested blocks from the token sequence.
+      @tokens.inject([[:multi]]) do |stack, node|
+        case node[0]
+        when :block, :cond
+          case node[1]
+          when :open
+            body = [:multi]
+            stack.last << [node[0], *node[2..-1], body]
+            stack << body
+
+          when :close
+            body = stack.pop
+          end
+
+        else
+          stack.last << node
+        end
+
+        stack
+      end.first
+
+    end
+  end
+}
+
+
+eof = !.
+
+st = "{"
+et = "}"
+
+sep = ":"
+
+attr_sep = "="
+
+space = " " | "\t"
+sp = space+
+-  = space*
+
+quo = '"'
+
+escape_type = < "URLEncoded" | "JSPlaintext" | "Plaintext" | "JS" >
+  { text.downcase }
+
+opt_type    = < "color" | "image" | "font" | "text" | "lang" >
+  { text.downcase }
+
+block_type = ("/"?):close "block"
+  { close ? :close : :open }
+
+bool_type  = < "IfNot" | "If" >
+  { text.downcase }
+
+name = < /[a-zA-Z][0-9a-zA-Z-]*/ >
+  { text }
+
+label = < (!et .)+ >
+  { text }
+
+
+attr_key = < (!attr_sep .)+ >
+  { text }
+
+attr_val = quo < (!quo .)+ > quo
+  { text }
+
+attr = sp attr_key:key attr_sep attr_val:val
+  { [key, val] }
+
+
+var_tag = name:name attr*:attrs
+  {
+    [if attrs.empty?
+      [:tag, name]
+    else
+      [:tag, name, Hash[attrs]]
+    end]
+  }
+
+escaped_var_tag  = escape_type:type var_tag:v
+  { [[:esc, type.to_sym, *v]] }
+
+opt_tag = opt_type:opt sep label:label
+  { [[opt.to_sym, label]] }
+
+block = block_type:type sep name:name
+  {
+    result = []
+    if idx = @stack.rindex(name)
+      # Close all the blocks leading up to current one
+      (@stack.length - 1 - idx).times do
+        close_block result, @stack.pop
+      end
+
+      # Force close the block
+      type = :close
+      @stack.pop
+    else
+      @stack << name
+    end
+
+    result << [:block, type, name]
+    result
+  }
+
+cond = block_type:type sep bool_type:bool_type name:name
+  { [[:cond, type, bool_type.to_sym, name]] }
+
+
+tag = st (cond | block | opt_tag | escaped_var_tag | var_tag):body et
+  { body }
+
+noop = st (!et .)+ et
+  { [[:noop]] }
+
+static = < (!tag .)+ >
+  { [[:static, text]] }
+
+sequence = (tag | noop | static)*:groups
+  {
+    groups.each_with_object([]) do |elms, result|
+      elms.each {|elm| result << elm}
+    end
+  }
+
+root = sequence:s eof
+  { @tokens = s }

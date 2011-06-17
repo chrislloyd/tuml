@@ -1,0 +1,18 @@
+PATH
+  remote: .
+  specs:
+    tuml (0.0.1)
+      nokogiri (>= 1.4)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    kpeg (0.8.3)
+    nokogiri (1.4.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  kpeg (>= 0.8)
+  tuml!
