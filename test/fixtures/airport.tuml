@@ -1,0 +1,447 @@
+<!--
+		Designed by
+		
+			_|_|_|      _|_|    _|_|_|_|    _|_|    _|  _|_|  
+			_|    _|  _|_|_|_|    _|      _|_|_|_|  _|_|      
+			_|    _|  _|          _|      _|        _|        
+			_|_|_|      _|_|_|      _|_|    _|_|_|  _|        
+			_|                                                
+			_|                                                
+
+			            _|        _|                      _|  
+			_|      _|        _|_|_|    _|_|_|  _|_|_|        
+			_|      _|  _|  _|    _|  _|    _|  _|    _|  _|  
+			  _|  _|    _|  _|    _|  _|    _|  _|    _|  _|  
+			    _|      _|    _|_|_|    _|_|_|  _|    _|  _|
+		
+		Found at Tumblr's Theme Garden or http://petervidani.com/airport
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	
+	<title>{Title}{block:PostTitle} - {PostTitle}{/block:PostTitle}</title>
+	{block:Description}<meta name="description" content="{MetaDescription}" />{/block:Description}
+	<link rel="shortcut icon" href="{Favicon}">
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="{RSS}" />
+	<meta name="author" content="Peter Vidani" />
+	
+	<meta name="viewport" content="width=1000" />
+	
+	<meta name="text:Disqus Shortname" content="" />
+	
+	<meta name="if:Show note count" content="1" />
+	<meta name="if:Show notes on permalink pages" content="1" />
+	
+	<meta name="font:Body" content="Helvetica Neue" />
+	<meta name="color:Background" content="#FFFFFF"/>
+	<meta name="color:Text" content="#2C2C2C"/>
+	<meta name="color:Link" content="#003cff"/>
+	<meta name="color:LinkHover" content="#003CFF"/>
+	<meta name="color:LinkBackground" content="#FFFFFF"/>
+	<meta name="color:LinkBackgroundHover" content="#FFFFFF"/>
+	<meta name="color:HeaderText" content="#2C2C2C"/>
+	<meta name="color:HeaderBackground" content="#FFFD6C"/>
+	<meta name="color:NotesText" content="#2C2C2C"/>
+	<meta name="color:NotesBackground" content="#E3F0FF"/>
+	
+	<style type="text/css">
+	body {
+		color: {color:Text};
+		font-size: 12px;
+		font-family: {font:Body};
+		line-height: 16px;
+		background: {color:Background};
+		margin: 0;
+		padding: 0 0 50px 0;
+	}
+	
+	a {
+		text-decoration: none;
+	}
+	
+		a:active,a:focus { outline: 0; }
+		
+		a:hover {
+			color: {color:LinkHover};
+			text-decoration: underline;
+		}
+		
+		a img { border-width: 0px; }
+		
+	p {
+		margin: 0 0 9px 0;
+		padding: 0;
+	}
+	
+	blockquote {
+		border-left: 1px solid #2C2C2C;
+		margin: 0 0 8px 0;
+		padding: 0 0 0 10px;
+	}
+	
+	strong { font-weight: bold; }
+	
+	.cb { clear: both; }
+		
+	#container {
+		width: 944px;
+		margin: 50px auto 0 auto;
+	}
+	
+		#container .header {
+			width: 944px;
+			color: {color:HeaderText};
+			background: {color:HeaderBackground};
+			margin: 0 0 50px 0;
+		}
+		
+			#container .header a {
+				color: {color:HeaderText} !important;
+				font-weight: bold
+			}
+			
+				#container .header a:hover {
+					color: {color:HeaderText} !important;
+					background: none !important;
+				}
+		
+			#container .header a.title {
+				color: {color:HeaderText} !important;
+				font-weight: bold;
+				margin: 0 15px 0 0;
+			}
+			
+				#container .header a.title:hover {
+					color: {color:Text} !important;
+				}
+			
+		#container .post {
+			width: 944px;
+			margin: 0 0 50px 0;
+			position: relative;
+			overflow: hidden;
+		}
+		
+			{block:Permalink}
+			#container .post {
+				margin: 0 !important;
+				overflow: visible !important;
+			}
+			{/block:Permalink}
+	
+			#container .post .column {
+				float: left;
+			}
+		
+				#container .post .column.left {
+					width: 500px;
+				}
+				  
+				  #container .post .column.left img { max-width: 100%; }
+			
+				#container .post .column.center {
+					width: 192px;
+					margin: 0 30px;
+				}
+				
+					#container .post .column.center a {
+						color: {color:Text};
+						font-weight: bold;
+					}
+						
+						#container .post .column.center a:hover {
+							color: {color:Text} !important;
+							background: none !important;
+							font-weight: bold;
+						}
+						
+					#container .post .column.center a.tag {
+						font-size: 10px !important;
+						font-weight: normal !important;
+					}
+			
+				#container .post .column.right {
+					width: 192px;
+				}
+				
+					#container .post .column.left a,
+					#container .post .column.right a {
+						color: {color:Link};
+						background: {color:LinkBackground};
+						text-decoration: none;
+					}
+					
+						#container .post .column.left a:hover,
+						#container .post .column.right a:hover {
+							color: {color:LinkHover};
+							background: {color:LinkBackgroundHover};
+							text-decoration: underline;
+						}
+				
+					#container .post h4 {
+						font-size: 12px;
+						font-weight: bold;
+						margin: 0 0 14px 0;
+						padding: 0;
+					}
+					
+					#container .post a.link {
+						text-decoration: underline !important;
+					}
+				
+					/* this is for chat */
+					#container .post .column.left table {
+						margin: 0;
+						border-collapse: collapse;
+					}
+
+						#container .post .column.left table tr {
+							padding: 2px 0;
+						}
+
+						#container .post .column.left table tr td {
+							padding: auto;
+							vertical-align: top;
+						}
+
+						#container .post .column.left table tr td.name {
+							font-weight: bold;
+							text-align: right;
+							padding: 0 10px 0 0;
+						}
+
+						#container .post .column.left table tr td.words {
+							width: 100%;
+							text-align: left;
+							padding: 1px;
+						}
+					/* that was for chat */
+					
+		#container ol.notes {
+			width: 414px;
+			color: {color:NotesText};
+			background: {color:NotesBackground};
+			padding: 0px;
+			font-size: 10px;
+			margin: 30px 0 0 0;
+			list-style-type: none;
+			float: right;
+		}
+
+		#container ol.notes a {
+			color: {color:NotesText} !important;
+			background: {color:NotesBackground} !important;
+			font-weight: bold;
+			text-decoration: none;
+		}
+
+		#container ol.notes a:hover {
+			color: {color:NotesText} !important;
+			background: {color:NotesBackground} !important;
+			text-decoration: underline;
+		}
+
+		#container ol.notes li.note img.avatar {
+			display: none;
+		}
+
+		#container ol.notes li.note .answer_content {
+			font-weight: normal;
+		}
+
+		#container ol.notes li.note blockquote {
+			border-color: #eee;
+			padding: 0;
+			margin: 0 0 0 10px;
+		}
+
+		#container ol.notes li.note blockquote a {
+			text-decoration: none;
+		}
+					
+		#container .footer {
+			width: 944px;
+			margin: 50px 0 0 0;
+			overflow: hidden;
+		}
+		
+			#container .footer a {
+				color: {color:Link};
+			}
+			
+				#container .footer a:hover {
+					color: {color:Link} !important;
+					background: none !important;
+					text-decoration: underline !important;
+				}
+				
+			#container .footer .credit {
+				width: 400px;
+				font-size: 9px;
+				float: left;
+			}
+
+			#container .nav {
+			    text-transform: lowercase;
+				text-align: right;
+			}
+			
+				#container .nav .count {
+					margin: 0 10px 0 0;
+					float: right;
+				}
+
+				#container .nav a.button {
+					margin: 0 0 0 10px;
+					color: {color:Text};
+					float: right;
+				}
+				
+				#container .nav a.button:hover {
+					color: {color:Text} !important;
+					background: {color:Background} !important;
+				}
+				
+	a.install {
+        width: 96px;
+        height: 20px;
+        background: url(http://static.tumblr.com/thpaaos/dHHkt0jor/install_theme.png);
+        display: block;
+        position: absolute;
+        top: 26px;
+        right: 3px;
+    }
+	
+	/*Custom CSS */
+	{CustomCSS}
+	</style>
+</head>
+<body>
+    <a href="http://www.tumblr.com/theme/461" class="install"></a>
+    
+	<div id="container">
+		<div class="header">
+			<a href="/" class="title">{Title}</a>
+			{Description}
+		</div>
+		
+		{block:Posts}
+		<div class="post">
+			<div class="column left">
+				{block:Photo}
+				{LinkOpenTag}<img src="{PhotoURL-500}" alt="{PhotoAlt}"/>{LinkCloseTag}
+				{/block:Photo}
+				{block:Text}
+				{block:Title}<h4>{Title}</h4>{/block:Title}
+				<p>{Body}</p>
+				{/block:Text}
+				{block:Quote}
+				"{Quote}"
+				{/block:Quote}
+				{block:Audio}
+				{AudioPlayerBlack}
+				{/block:Audio}
+				{block:Video}
+				{Video-500}
+				{/block:Video}
+				{block:Chat}
+				{block:Title}<h4>{Title}</h4>{/block:Title}
+				<table>
+					{block:Lines}
+					<tr>
+						{block:Label}<td class="name">{Label}</td>{block:Label}
+						<td class="words">{Line}</td>
+					</tr>
+					{/block:Lines}
+				</table>
+				{/block:Chat}
+				{block:Link}
+				<a href="{URL}" class="link">{Name}</a>
+				{/block:Link}
+				
+				{block:IfDisqusShortname}
+        {block:Permalink}
+        <div class="notecontainer" style="margin: 20px 0 1px 0; padding: 1px 10px 10px 10px;">
+          <div id="disqus_thread"></div>
+          <script type="text/javascript" src="http://disqus.com/forums/{text:Disqus Shortname}/embed.js"></script>
+          <noscript><a href="http://{text:Disqus Shortname}.disqus.com/?url=ref">{lang:View the discussion thread}</a></noscript>
+        </div>
+        <div style="text-align: right; margin-top: 5px">
+          {lang:Blog comments powered by Disqus 2}
+        </div>
+        {/block:Permalink}
+        {/block:IfDisqusShortname}
+			</div>
+			<div class="column center">
+				{block:NewDayDate}{DayOfWeek} {MonthNumber}/{DayOfMonth}/{Year}{block:NewDayDate}
+				<p><a href="{Permalink}" class="permalink">{12Hour}:{Minutes}{AmPm}</a>{block:IfShowNoteCount} {block:NoteCount}({NoteCountWithLabel}){/block:NoteCount}{/block:IfShowNoteCount}</p>
+				{block:IfDisqusShortname}<p><a href="{Permalink}#disqus_thread">{lang:View comments}</a></p>{/block:IfDisqusShortname}
+				{block:HasTags}<p>{block:Tags}<a href="{TagURL}" class="tag">{Tag}</a>; {/block:Tags}</p>{/block:HasTags}
+			</div>
+			<div class="column right">
+				{block:Photo}
+				{block:Caption}{Caption}{/block:Caption}
+				{/block:Photo}
+				
+				{block:Quote}
+				{block:Source}{Source}{/block:Source}
+				{/block:Quote}
+				
+				{block:Audio}
+				{block:Caption}{Caption}{/block:Caption} ({PlayCountWithLabel})
+				{/block:Audio}
+				
+				{block:Video}
+				{block:Caption}{Caption}{/block:Caption}
+				{/block:Video}
+				
+				{block:Link}
+				{block:Description}{Description}{/block:Description}
+				{/block:Link}
+			</div>
+		</div>
+		{block:IfShowNotesOnPermalinkPages}{PostNotes}{/block:IfShowNotesOnPermalinkPages}	
+		{/block:Posts}
+		<div class="cb"></div>
+		<div class="footer">
+			<div class="credit">
+				Theme: <a href="http://petervidani.com/airport">Airport</a> by <a href="http://petervidani.com">Peter Vidani</a>
+			</div>
+			{block:Pagination}
+			<div class="nav">
+				{block:NextPage}<a href="{NextPage}" class="button">{lang:Next page} &rarr;</a>{/block:NextPage}
+				{block:PreviousPage}<a href="{PreviousPage}" class="button">&larr; {lang:Prev}</a>{/block:PreviousPage}
+				<div class="count">{CurrentPage} / {TotalPages}</div>
+			</div>
+			{/block:Pagination}
+			{block:PermalinkPagination}
+			<div class="nav">
+				{block:PreviousPost}<a href="{PreviousPost}" class="button">{lang:Next post} &rarr;</a>{/block:PreviousPost}
+				{block:NextPost}<a href="{NextPost}" class="button">&larr; {lang:Prev}</a>{/block:NextPost}
+			</div>
+			{/block:PermalinkPagination}
+		</div>
+	</div>
+  {block:IfDisqusShortname}
+  <script type="text/javascript">
+  //<![CDATA[
+  (function() {
+    var links = document.getElementsByTagName('a');
+    var query = '?';
+    for(var i = 0; i < links.length; i++) {
+      if(links[i].href.indexOf('#disqus_thread') >= 0) {
+        query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+      }
+    }
+    document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/{text:Disqus Shortname}/get_num_replies.js' + query + '"></' + 'script>');
+    })();
+    //]]>
+    </script>
+  {/block:IfDisqusShortname}
+</body>
+</html>

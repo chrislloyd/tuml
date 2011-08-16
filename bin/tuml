@@ -1,0 +1,92 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+require 'yaml'
+require 'optparse'
+
+# TODO: Remove
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+
+require 'tuml'
+
+class Tuml
+  class CLI
+    # Return a structure describing the options.
+    def self.parse_options(args)
+      OptionParser.new do |opts|
+        opts.banner = "Usage: tuml [-t] TEMPLATE [DATA] [URL]"
+
+        opts.separator " "
+
+        opts.separator "Examples:"
+        opts.separator "  $ tuml data.yml template.tuml"
+        opts.separator "  $ tuml data.yml template.tuml posts/231234"
+        opts.separator "  $ cat data.yml | tuml - template.tuml"
+
+        # opts.separator "  See tuml(1) or " +
+        #   "http://rollrapp.com"
+        # opts.separator "  for more details."
+
+        opts.separator " "
+        opts.separator "Options:"
+
+        opts.on("-t", "--tokens FILE",
+          "Print the tokenized form of a given template.") do |file|
+          require 'pp'
+          pp Tuml::Template.new(File.read(file)).tokens
+          exit
+        end
+
+
+        opts.separator ""
+        opts.separator "Common Options:"
+
+        opts.on_tail("-v", "--version", "Print the version") do |v|
+          puts "Tuml v#{Tuml::Version}"
+          exit
+        end
+
+        opts.on_tail("-h", "--help", "Show this message") do
+          puts opts
+          exit
+        end
+      end.parse!(args)
+    end
+
+    # Does the dirty work of reading files from STDIN and the command
+    # line then processing them. The meat of this script, if you will.
+    def self.process_files(template, data=:dummy, path='/')
+
+      t = File.read(template)
+      d = YAML.load_file(data)
+
+      ctx = Tuml::IndexPage.new(d)
+
+      puts Tuml::Template.new(t).render(ctx)
+
+      # doc = input_stream.read
+      #
+      # if doc =~ /^(\s*---(.+)---\s*)/m
+      #   yaml = $2.strip
+      #   template = doc.sub($1, '')
+      #
+      #   YAML.each_document(yaml) do |data|
+      #     puts Tuml.render(template, data)
+      #   end
+      # else
+      #   puts Tuml.render(doc)
+      # end
+
+    end
+  end
+end
+
+# Help is the default.
+ARGV << '-h' if ARGV.empty? && $stdin.tty?
+
+# Process options
+Tuml::CLI.parse_options(ARGV)
+
+# Still here - process ARGV
+Tuml::CLI.process_files(*ARGV)
+

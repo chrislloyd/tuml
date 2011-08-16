@@ -1,25 +1,21 @@
-require 'nokogiri'
+require 'tuml/parser'
+require 'tuml/generator'
 
-module Tuml
+class Tuml
   class Template
+    attr_reader :source
 
-    def initialize(data)
-      @data = data
-      @context = []
+    def initialize(source)
+      @source = source
     end
 
-    def render(url, src, options={})
-      parser = Paser.new(source)
-      parser.parse
-
-      Generator.new parser.ast, self
+    def render(context, src = @source)
+      Generator.new(context).compile(tokens(src))
     end
 
-    def lookup var, attrs={}
-      'Foo'
+    def tokens(src = @source)
+      Parser.new(src).compile
     end
-
-    def lookup_
 
     # def available_options(tuml)
     #   Nokogiri::HTML(tuml)
@@ -30,7 +26,14 @@ module Tuml
     #       opts[[type.to_sym, label]] = node[:content]
     #     end
     # end
+
+    # /               -> Page(0)
+    # /page/:n        -> Page(n)
+    # /post/:id       -> Permalink(id)
+    # /search/foo+bar -> Search
+    # /ask            -> Ask
+    # /submit         -> Submit
+    # /*              -> Page(url)
+
   end
 end
-
-

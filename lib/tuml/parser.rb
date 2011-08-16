@@ -365,35 +365,50 @@ class Tuml::Parser
     collection << [:block, :close, name]
   end
 
-  def ast
-    @ast ||= begin
-      stack = [[:multi]]
+  # After parsing the stack may not be empty so we need to explicitely close
+  # all open blocks.
+  def empty_stack!
+    @stack.reverse.each do |blk|
+      @ast << [:block, :close, blk]
+    end
+  end
 
-      # Close any open tags
-      @stack.reverse.each {|ctx| close_block @tokens, ctx}
+  # In order to efficiently generate HTML from the sexp, we need to collect
+  # the parse tree into nested expressions. This process is made far simpler
+  # as we have ensured that for every :open there is a matching :close.
+  def collect_closures!
+    # We inject over an array with the first element being the new ast to be
+    # returned. This serves as our root context and will never be closed.
+    @ast = @ast.inject([[:multi]]) do |stack, node|
+      case node[0]
+      when :block, :cond
+        case node[1]
+        # Create a new block and set its body as the current context.
+        when :open
+          body = [:multi]
+          stack.last << [node[0], *node[2..-1], body]
+          stack << body
 
-      # Constructs a sequence of nested blocks from the token sequence.
-      @tokens.inject([[:multi]]) do |stack, node|
-        case node[0]
-        when :block, :cond
-          case node[1]
-          when :open
-            body = [:multi]
-            stack.last << [node[0], *node[2..-1], body]
-            stack << body
-
-          when :close
-            body = stack.pop
-          end
-
-        else
-          stack.last << node
+        # Close the current context
+        when :close
+          stack.pop
         end
 
-        stack
-      end.first
+      # Push any other blocks into the current context
+      else
+        stack.last << node
+      end
 
-    end
+      stack
+    end.first
+  end
+
+  def compile
+    parse
+    empty_stack!
+    collect_closures!
+
+    return @ast
   end
 
 
@@ -935,7 +950,7 @@ class Tuml::Parser
     return _tmp
   end
 
-  # var_tag = name:name attr*:attrs {     [if attrs.empty?       [:tag, name]     else       [:tag, name, Hash[attrs]]     end]   }
+  # var_tag = name:name attr*:attrs { [attrs.empty? ? [:tag, name] : [:tag, name, Hash[attrs]]] }
   def _var_tag
 
     _save = self.pos
@@ -959,13 +974,7 @@ class Tuml::Parser
         self.pos = _save
         break
       end
-      @result = begin; 
-    [if attrs.empty?
-      [:tag, name]
-    else
-      [:tag, name, Hash[attrs]]
-    end]
-  ; end
+      @result = begin;  [attrs.empty? ? [:tag, name] : [:tag, name, Hash[attrs]]] ; end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -1091,7 +1100,7 @@ class Tuml::Parser
     return _tmp
   end
 
-  # cond = block_type:type sep bool_type:bool_type name:name { [[:cond, type, bool_type.to_sym, name]] }
+  # cond = block_type:type sep bool_type:bool_type name:name { [[:noop]]}
   def _cond
 
     _save = self.pos
@@ -1119,7 +1128,7 @@ class Tuml::Parser
         self.pos = _save
         break
       end
-      @result = begin;  [[:cond, type, bool_type.to_sym, name]] ; end
+      @result = begin;  [[:noop]]; end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -1378,7 +1387,7 @@ class Tuml::Parser
     return _tmp
   end
 
-  # root = sequence:s eof { @tokens = s }
+  # root = sequence:s eof { @ast = s }
   def _root
 
     _save = self.pos
@@ -1394,7 +1403,7 @@ class Tuml::Parser
         self.pos = _save
         break
       end
-      @result = begin;  @tokens = s ; end
+      @result = begin;  @ast = s ; end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -1425,14 +1434,14 @@ class Tuml::Parser
   Rules[:_attr_key] = rule_info("attr_key", "< (!attr_sep .)+ > { text }")
   Rules[:_attr_val] = rule_info("attr_val", "quo < (!quo .)+ > quo { text }")
   Rules[:_attr] = rule_info("attr", "sp attr_key:key attr_sep attr_val:val { [key, val] }")
-  Rules[:_var_tag] = rule_info("var_tag", "name:name attr*:attrs {     [if attrs.empty?       [:tag, name]     else       [:tag, name, Hash[attrs]]     end]   }")
+  Rules[:_var_tag] = rule_info("var_tag", "name:name attr*:attrs { [attrs.empty? ? [:tag, name] : [:tag, name, Hash[attrs]]] }")
   Rules[:_escaped_var_tag] = rule_info("escaped_var_tag", "escape_type:type var_tag:v { [[:esc, type.to_sym, *v]] }")
   Rules[:_opt_tag] = rule_info("opt_tag", "opt_type:opt sep label:label { [[opt.to_sym, label]] }")
   Rules[:_block] = rule_info("block", "block_type:type sep name:name {     result = []     if idx = @stack.rindex(name)       \# Close all the blocks leading up to current one       (@stack.length - 1 - idx).times do         close_block result, @stack.pop       end        \# Force close the block       type = :close       @stack.pop     else       @stack << name     end      result << [:block, type, name]     result   }")
-  Rules[:_cond] = rule_info("cond", "block_type:type sep bool_type:bool_type name:name { [[:cond, type, bool_type.to_sym, name]] }")
+  Rules[:_cond] = rule_info("cond", "block_type:type sep bool_type:bool_type name:name { [[:noop]]}")
   Rules[:_tag] = rule_info("tag", "st (cond | block | opt_tag | escaped_var_tag | var_tag):body et { body }")
   Rules[:_noop] = rule_info("noop", "st (!et .)+ et { [[:noop]] }")
   Rules[:_static] = rule_info("static", "< (!tag .)+ > { [[:static, text]] }")
   Rules[:_sequence] = rule_info("sequence", "(tag | noop | static)*:groups {     groups.each_with_object([]) do |elms, result|       elms.each {|elm| result << elm}     end   }")
-  Rules[:_root] = rule_info("root", "sequence:s eof { @tokens = s }")
+  Rules[:_root] = rule_info("root", "sequence:s eof { @ast = s }")
 end

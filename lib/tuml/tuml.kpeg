@@ -9,35 +9,50 @@
     collection << [:block, :close, name]
   end
 
-  def ast
-    @ast ||= begin
-      stack = [[:multi]]
+  # After parsing the stack may not be empty so we need to explicitely close
+  # all open blocks.
+  def empty_stack!
+    @stack.reverse.each do |blk|
+      @ast << [:block, :close, blk]
+    end
+  end
 
-      # Close any open tags
-      @stack.reverse.each {|ctx| close_block @tokens, ctx}
+  # In order to efficiently generate HTML from the sexp, we need to collect
+  # the parse tree into nested expressions. This process is made far simpler
+  # as we have ensured that for every :open there is a matching :close.
+  def collect_blocks!
+    # We inject over an array with the first element being the new ast to be
+    # returned. This serves as our root context and will never be closed.
+    @ast = @ast.inject([[:multi]]) do |stack, node|
+      case node[0]
+      when :block, :cond
+        case node[1]
+        # Create a new block and set its body as the current context.
+        when :open
+          body = [:multi]
+          stack.last << [node[0], *node[2..-1], body]
+          stack << body
 
-      # Constructs a sequence of nested blocks from the token sequence.
-      @tokens.inject([[:multi]]) do |stack, node|
-        case node[0]
-        when :block, :cond
-          case node[1]
-          when :open
-            body = [:multi]
-            stack.last << [node[0], *node[2..-1], body]
-            stack << body
-
-          when :close
-            body = stack.pop
-          end
-
-        else
-          stack.last << node
+        # Close the current context
+        when :close
+          stack.pop
         end
 
-        stack
-      end.first
+      # Push any other blocks into the current context
+      else
+        stack.last << node
+      end
 
-    end
+      stack
+    end.first
+  end
+
+  def compile
+    parse
+    empty_stack!
+    collect_blocks!
+
+    return @ast
   end
 }
 
@@ -55,6 +70,8 @@ space = " " | "\t"
 sp = space+
 -  = space*
 
+# TODO: Support other types of quoting. The Tumblr docs only advertise double
+#   quotes so for the moment that is the easiest to support.
 quo = '"'
 
 escape_type = < "URLEncoded" | "JSPlaintext" | "Plaintext" | "JS" >
@@ -87,13 +104,7 @@ attr = sp attr_key:key attr_sep attr_val:val
 
 
 var_tag = name:name attr*:attrs
-  {
-    [if attrs.empty?
-      [:tag, name]
-    else
-      [:tag, name, Hash[attrs]]
-    end]
-  }
+  { [attrs.empty? ? [:tag, name] : [:tag, name, Hash[attrs]]] }
 
 escaped_var_tag  = escape_type:type var_tag:v
   { [[:esc, type.to_sym, *v]] }
@@ -122,7 +133,8 @@ block = block_type:type sep name:name
   }
 
 cond = block_type:type sep bool_type:bool_type name:name
-  { [[:cond, type, bool_type.to_sym, name]] }
+  # { [[:cond, type, bool_type.to_sym, name]] }
+  { [[:noop]]}
 
 
 tag = st (cond | block | opt_tag | escaped_var_tag | var_tag):body et
@@ -142,4 +154,4 @@ sequence = (tag | noop | static)*:groups
   }
 
 root = sequence:s eof
-  { @tokens = s }
+  { @ast = s }

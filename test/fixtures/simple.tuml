@@ -1,0 +1,7 @@
+<html>
+  {Title}
+  {block:Posts}
+    {Title}
+    {Desc}
+  {/block:Posts}
+</html>

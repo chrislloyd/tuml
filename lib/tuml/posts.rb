@@ -1,0 +1,8 @@
+require 'tuml/posts/answer_post'
+require 'tuml/posts/audio_post'
+require 'tuml/posts/chat_post'
+require 'tuml/posts/link_post'
+require 'tuml/posts/photo_post'
+require 'tuml/posts/quote_post'
+require 'tuml/posts/text_post'
+require 'tuml/posts/video_post'
