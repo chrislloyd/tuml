@@ -5,7 +5,7 @@ PATH
       nokogiri (>= 1.4)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     kpeg (0.8.3)
     nokogiri (1.4.5)
